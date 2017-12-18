@@ -1,0 +1,79 @@
+
+package domain;
+
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.constraints.SafeHtml;
+import org.hibernate.validator.constraints.SafeHtml.WhiteListType;
+
+@Access(AccessType.PROPERTY)
+@Entity
+@Table(indexes = {
+	@Index(columnList = "lesson_id")
+})
+public class Shift extends DomainEntity {
+
+	// Attributes
+	// ====================================================================================
+
+	private String	title;
+	private int		attendance;
+
+
+	// Constructors
+	// ====================================================================================
+
+	public Shift() {
+		super();
+	}
+
+	// Getters & Setters
+	// ====================================================================================
+
+	@SafeHtml(whitelistType = WhiteListType.NONE)
+	@NotBlank
+	public String getTitle() {
+		return this.title;
+	}
+
+	public void setTitle(final String title) {
+		this.title = title;
+	}
+
+	@NotNull
+	@Range(min = 0, max = 100)
+	public int getAttendance() {
+		return this.attendance;
+	}
+
+	public void setAttendance(final int attendance) {
+		this.attendance = attendance;
+	}
+
+
+	//Relationships
+	// =================================================================
+
+	private Lesson	lesson;
+
+
+	@NotNull
+	@Valid
+	@ManyToOne(optional = false)
+	public Lesson getLesson() {
+		return this.lesson;
+	}
+
+	public void setLesson(final Lesson lesson) {
+		this.lesson = lesson;
+	}
+}

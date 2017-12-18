@@ -1,0 +1,244 @@
+
+package services;
+
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
+import repositories.LessonRepository;
+import domain.Kindergarten;
+import domain.Lesson;
+
+
+@Service
+@Transactional
+public class LessonService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private LessonRepository	lessonRepository;
+
+
+
+	//Constructor methods ============================================================================
+
+	//Simple CRUD methods ============================================================================
+
+	public Collection<Lesson> findAll() {
+		Collection<Lesson> result;
+
+		result = this.lessonRepository.findAll();
+
+		return result;
+	}
+
+//	public Lesson create() {
+//		Lesson result;
+//		Kindergarten principal;
+//		
+//
+//		principal = this.kindergartenService.findByPrincipal();
+//		Assert.notNull(principal);
+//		Assert.isInstanceOf(Kindergarten.class, principal);
+//
+//		
+//
+//		result = new Lesson();
+//		result.setKindergarten(principal);
+//	
+//
+//		return result;
+//	}
+//
+//	public Lesson save(final Lesson lesson) {
+//		Assert.notNull(lesson);
+//		Lesson result;
+//		Kindergarten principal;
+//
+//		principal = this.kindergartenService.findByPrincipal();
+//		Assert.notNull(principal);
+//
+//		final long l = 10;
+//		final Date actual = new Date(System.currentTimeMillis() - l);
+//		final Calendar futureDate = Calendar.getInstance();
+//		futureDate.setTime(actual);
+//		futureDate.add(Calendar.DAY_OF_YEAR, 7);
+//
+//		Assert.isTrue(!lesson.getTitle().isEmpty());
+//		Assert.isTrue(!lesson.getDescription().isEmpty());
+//		Assert.isTrue((lesson.getFinishDate().getTime() >= futureDate.getTimeInMillis()) && (lesson.getStartDate().getTime() <= actual.getTime()));
+//		Assert.isTrue(lesson.getKindergarten().equals(principal));
+//		
+//		result = this.lessonRepository.save(lesson);
+//
+//		return result;
+//	}
+//
+//	public Lesson findOne(final int lessonID) {
+//		Assert.notNull(lessonID);
+//		Lesson result;
+//		result = this.lessonRepository.findOne(lessonID);
+//		return result;
+//
+//	}
+
+	//Other Business Methods =========================================================================
+
+//	public Collection<Lesson> findAllByKindergartenId(final int companyId) {
+//		Collection<Lesson> result;
+//
+//		result = this.lessonRepository.findAllByKindergartenId(companyId);
+//
+//		return result;
+//	}
+//
+//	public Collection<Lesson> findAllMyLessonsByKindergartenId(final int companyId) {
+//		Collection<Lesson> result;
+//
+//		result = this.lessonRepository.findAllMyLessonsByKindergartenId(companyId);
+//
+//		return result;
+//	}
+//
+//	public Collection<Lesson> findAllNotDraft() {
+//		Collection<Lesson> result;
+//
+//		result = this.lessonRepository.findAllNotDraft();
+//
+//		return result;
+//	}
+//
+//	public Collection<Lesson> getLessonByKeyWord(final String keyWord, final String currency) {
+//		Assert.notNull(keyWord);
+//		Collection<Lesson> result;
+//
+//		result = this.lessonRepository.searchLessonByWords(keyWord, currency);
+//
+//		return result;
+//	}
+//
+//	public LessonForm reconstructToForm(final Lesson lesson) {
+//		final LessonForm lessonForm = new LessonForm();
+//
+//		lessonForm.setLessonId(lesson.getId());
+//		lessonForm.setCreateMoment(lesson.getCreateMoment());
+//		lessonForm.setTitle(lesson.getTitle());
+//		lessonForm.setDescription(lesson.getDescription());
+//		lessonForm.setDraft(lesson.getDraft());
+//		lessonForm.setDeadline(lesson.getDeadline());
+//		lessonForm.setCurrency(lesson.getSalary().getCurrency());
+//		lessonForm.setMaxSalary(lesson.getSalary().getMaxSalary());
+//		lessonForm.setMinSalary(lesson.getSalary().getMinSalary());
+//
+//		return lessonForm;
+//
+//	}
+//
+//	public Lesson reconstructLesson(final LessonForm lessonForm, final BindingResult binding) {
+//		Lesson result;
+//		if (lessonForm.getLessonId() == null)
+//			result = this.create();
+//		else
+//			result = this.findOne(lessonForm.getLessonId());
+//
+//		final Salary salary = new Salary();
+//
+//		final long l = 10;
+//		final Date actual = new Date(System.currentTimeMillis() - l);
+//
+//		final Kindergarten company = this.companyService.findByPrincipal();
+//
+//		result.setCreateMoment(actual);
+//		result.setKindergarten(company);
+//		result.setDeadline(lessonForm.getDeadline());
+//		result.setDescription(lessonForm.getDescription());
+//		result.setDraft(lessonForm.getDraft());
+//		result.setTitle(lessonForm.getTitle());
+//		salary.setCurrency(lessonForm.getCurrency());
+//		salary.setMaxSalary(lessonForm.getMaxSalary());
+//		salary.setMinSalary(lessonForm.getMinSalary());
+//		result.setSalary(salary);
+//
+//		this.comprobarDeadline(lessonForm.getDeadline(), binding);
+//		this.comprobarMinAndMaxSalary(lessonForm.getMinSalary(), lessonForm.getMaxSalary(), binding);
+//
+//		return result;
+//	}
+//
+//	private boolean comprobarDeadline(final Date deadline, final BindingResult binding) {
+//		FieldError error;
+//		String[] codigos;
+//		boolean result;
+//
+//		if (deadline == null)
+//			result = true;
+//		else
+//			result = false;
+//
+//		if (!result) {
+//
+//			final long l = 10;
+//			final Date actual = new Date(System.currentTimeMillis() - l);
+//			final Calendar futureDate = Calendar.getInstance();
+//			futureDate.setTime(actual);
+//			futureDate.add(Calendar.DAY_OF_YEAR, 7);
+//
+//			final Calendar deadlineCalendar = Calendar.getInstance();
+//			deadlineCalendar.setTime(deadline);
+//
+//			if (deadlineCalendar.getTimeInMillis() >= futureDate.getTimeInMillis())
+//				result = true;
+//			else {
+//
+//				codigos = new String[1];
+//				codigos[0] = "lesson.deadline.error";
+//				error = new FieldError("lessonForm", "deadline", deadline, false, codigos, null, "");
+//				binding.addError(error);
+//
+//			}
+//		}
+//
+//		return result;
+//	}
+//
+//	private boolean comprobarMinAndMaxSalary(final Double minSalary, final Double maxSalary, final BindingResult binding) {
+//		FieldError error;
+//		String[] codigos;
+//		boolean result;
+//
+//		if (minSalary == null && maxSalary == null)
+//			result = true;
+//		else
+//			result = false;
+//
+//		if (!result)
+//			if (minSalary <= maxSalary)
+//				result = true;
+//			else {
+//
+//				codigos = new String[1];
+//				codigos[0] = "lesson.salary.error";
+//				error = new FieldError("lessonForm", "maxSalary", maxSalary, false, codigos, null, "");
+//				binding.addError(error);
+//
+//			}
+//
+//		return result;
+//	}
+//
+//	public Double avgNumberLessonsPerKindergarten() {
+//		Double avg;
+//
+//		avg = this.lessonRepository.avgNumberLessonsPerKindergarten();
+//		return avg;
+//	}
+//
+}

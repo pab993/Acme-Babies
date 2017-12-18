@@ -1,0 +1,207 @@
+
+package services;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
+import repositories.CaretakerRepository;
+import security.Authority;
+import security.LoginService;
+import security.UserAccount;
+import domain.Caretaker;
+import forms.CaretakerForm;
+
+@Service
+@Transactional
+public class CaretakerService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private CaretakerRepository	caretakerRepository;
+
+
+	//Simple CRUD methods ============================================================================
+
+	public Caretaker create() {
+		Caretaker result;
+		UserAccount userAccount;
+		Authority authority;
+
+		authority = new Authority();
+		userAccount = new UserAccount();
+
+		authority.setAuthority("CARETAKER");
+		userAccount.addAuthority(authority);
+
+		result = new Caretaker();
+
+		result.setUserAccount(userAccount);
+
+		return result;
+	}
+
+	public Caretaker save(Caretaker caretaker) {
+		Assert.notNull(caretaker);
+		Assert.notNull(caretaker.getUserAccount());
+		Caretaker result;
+
+		result = caretakerRepository.save(caretaker);
+
+		return result;
+	}
+
+	//Other Business Methods =========================================================================
+
+	public Caretaker findByPrincipal() {
+		Caretaker result;
+		UserAccount userAccount;
+
+		userAccount = LoginService.getPrincipal();
+		Assert.notNull(userAccount);
+
+		result = this.findByUserAccount(userAccount);
+		Assert.notNull(result);
+
+		return result;
+	}
+
+	public Caretaker findByUserAccount(final UserAccount userAccount) {
+		Assert.notNull(userAccount);
+		Caretaker result;
+
+		result = caretakerRepository.findByUserAccountId(userAccount.getId());
+
+		return result;
+	}
+
+	public Caretaker reconstruct(CaretakerForm caretakerForm, BindingResult binding) {
+
+		Caretaker result;
+
+		result = create();
+		result.getUserAccount().setUsername(caretakerForm.getUsername());
+		result.setName(caretakerForm.getName());
+		result.setSurname(caretakerForm.getSurname());
+		result.setPhoneNumber(caretakerForm.getPhoneNumber());
+		result.setEmail(caretakerForm.getEmail());
+		result.setAddress(caretakerForm.getAddress());
+		result.setPicture(caretakerForm.getPicture());
+		result.getUserAccount().setPassword(new Md5PasswordEncoder().encodePassword(caretakerForm.getPassword(), null));
+		//		result.getUserAccount().setEnabled(true);
+		result.setIdNumber(generateIdNumber());
+
+		comprobarContrasena(caretakerForm.getPassword(), caretakerForm.getRepeatPassword(), binding);
+		comprobarPhoneNumber(caretakerForm.getPhoneNumber(), binding);
+		comprobarUserUnique(caretakerForm.getUsername(), binding);
+
+		return result;
+	}
+
+	private boolean comprobarContrasena(String password, String passwordRepeat, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(passwordRepeat))
+			result = password.equals(passwordRepeat);
+		else
+			result = false;
+
+		if (!result) {
+			codigos = new String[1];
+			codigos[0] = "caretaker.password.mismatch";
+			error = new FieldError("caretakerForm", "password", password, false, codigos, null, "");
+			binding.addError(error);
+		}
+
+		return result;
+	}
+
+	private boolean comprobarPhoneNumber(String phoneNumber, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (phoneNumber == null || phoneNumber.isEmpty()) {
+			result = true;
+		} else {
+			result = false;
+		}
+
+		if (!result) {
+			if (phoneNumber.matches("^[+][a-zA-Z]{2}([(][0-9]{1,3}[)])?[0-9]{4,25}$")) {
+				result = true;
+			} else {
+				codigos = new String[1];
+				codigos[0] = "caretaker.phoneNumber.error";
+				error = new FieldError("caretakerForm", "phoneNumber", phoneNumber, false, codigos, null, "");
+				binding.addError(error);
+			}
+		}
+
+		return result;
+	}
+
+	private boolean comprobarUserUnique(String username, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+		Integer userUnique = null;
+
+		userUnique = caretakerRepository.checkCaretakerByUsername(username);
+		System.out.print(userUnique);
+
+		if (userUnique != null) {
+			result = false;
+		} else {
+			result = true;
+		}
+
+		if (!result) {
+			codigos = new String[1];
+			codigos[0] = "caretaker.username.mismatch";
+			error = new FieldError("caretakerForm", "username", username, false, codigos, null, "");
+			binding.addError(error);
+		}
+
+		return result;
+	}
+
+	public String generateIdNumber() {
+		String result = "";
+
+		//  ^[a-zA-Z]{3}-[0-9]{5}$
+		final String characters = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+		final String numbers = "0123456789";
+
+		for (int i = 0; i < 3; i++) {
+			result += characters.charAt((int) (Math.random() * 54));
+		}
+		result += "-";
+
+		for (int i = 0; i < 5; i++) {
+			result += numbers.charAt((int) (Math.random() * 10));
+		}
+
+		Collection<Caretaker> caretakers = new ArrayList<Caretaker>();
+		caretakers = caretakerRepository.findByIdNumber(result);
+
+		if (!caretakers.isEmpty()) {
+			result = generateIdNumber();
+		}
+
+		return result;
+	}
+
+}

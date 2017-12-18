@@ -1,0 +1,44 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+lesson.startDate		= Start Date
+lesson.title			= Title
+lesson.description		= Description
+lesson.price			= Price
+lesson.finishDate		= Finish Date
+lesson.attendance		= Attendance
+lesson.shiftsNumber		= Shifts number
+lesson.display			= Display Lesson
+lesson.info				= Lesson's info
+lesson.search			= Search for a Lesson
+
+lesson.inscription		= Lesson already started
+
+information.lessonTax   = Remember that the cost of creating a new lesson is
+
+actor.display			= Display Actor
+
+kindergarten.display	= Display kindergarten
+
+edit.information		= Information
+lesson.create			= Create a new lesson
+lesson.edit				= Edit
+lesson.submit			= Save
+lesson.delete			= Delete
+lesson.confirm.delete	= Are you sure you want to delete this lesson?
+lesson.cancel			= Back
+lesson.createInscription	= Subscribe!
+lesson.save.error		= Cannot submit this operation. Please note that the start date can not be later than the end date. In addition, it is not possible to edit or delete a lesson when there are babies registered in them and / or if you do not have a valid credit card registered.
+lesson.delete.error		= Cannot submit this operation. It is not possible to edit or delete a lesson when there are babies registered in them and / or if you do not have a valid credit card registered.
+
+assessment.title 			= Title
+assessment.text 			= Text
+assessment.rate 			= Rate
+assessment.actorName 		= Name
+
+postAssessment 				= Post assessment

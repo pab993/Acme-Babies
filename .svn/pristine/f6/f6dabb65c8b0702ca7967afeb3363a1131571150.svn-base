@@ -1,0 +1,79 @@
+
+package services;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import repositories.KindergartenRepository;
+import security.Authority;
+import security.LoginService;
+import security.UserAccount;
+import domain.Kindergarten;
+
+@Service
+@Transactional
+public class KindergartenService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private KindergartenRepository	kindergartenRepository;
+
+
+	//Simple CRUD methods ============================================================================
+
+	public Kindergarten create() {
+		Kindergarten result;
+		UserAccount userAccount;
+		Authority authority;
+
+		authority = new Authority();
+		userAccount = new UserAccount();
+
+		authority.setAuthority("KINDERGARTEN");
+		userAccount.addAuthority(authority);
+
+		result = new Kindergarten();
+
+		result.setUserAccount(userAccount);
+
+		return result;
+	}
+
+	public Kindergarten save(Kindergarten kindergarten) {
+		Assert.notNull(kindergarten);
+		Assert.notNull(kindergarten.getUserAccount());
+		Kindergarten result;
+
+		result = kindergartenRepository.save(kindergarten);
+
+		return result;
+	}
+
+	//Other Business Methods =========================================================================
+
+	public Kindergarten findByPrincipal() {
+		Kindergarten result;
+		UserAccount userAccount;
+
+		userAccount = LoginService.getPrincipal();
+		Assert.notNull(userAccount);
+
+		result = this.findByUserAccount(userAccount);
+		Assert.notNull(result);
+
+		return result;
+	}
+
+	public Kindergarten findByUserAccount(final UserAccount userAccount) {
+		Assert.notNull(userAccount);
+		Kindergarten result;
+
+		result = kindergartenRepository.findByUserAccountId(userAccount.getId());
+
+		return result;
+	}
+}

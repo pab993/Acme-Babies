@@ -1,0 +1,215 @@
+
+package services;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
+import repositories.KindergartenRepository;
+import security.Authority;
+import security.LoginService;
+import security.UserAccount;
+import domain.Kindergarten;
+import forms.KindergartenForm;
+
+@Service
+@Transactional
+public class KindergartenService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private KindergartenRepository	kindergartenRepository;
+
+
+	//Simple CRUD methods ============================================================================
+
+	public Kindergarten create() {
+		Kindergarten result;
+		UserAccount userAccount;
+		Authority authority;
+
+		authority = new Authority();
+		userAccount = new UserAccount();
+
+		authority.setAuthority("KINDERGARTEN");
+		userAccount.addAuthority(authority);
+
+		result = new Kindergarten();
+
+		result.setUserAccount(userAccount);
+
+		return result;
+	}
+
+	public Kindergarten save(Kindergarten kindergarten) {
+		Assert.notNull(kindergarten);
+		Assert.notNull(kindergarten.getUserAccount());
+		Kindergarten result;
+
+		result = kindergartenRepository.save(kindergarten);
+
+		return result;
+	}
+
+	//Other Business Methods =========================================================================
+
+	public Kindergarten findByPrincipal() {
+		Kindergarten result;
+		UserAccount userAccount;
+
+		userAccount = LoginService.getPrincipal();
+		Assert.notNull(userAccount);
+
+		result = this.findByUserAccount(userAccount);
+		Assert.notNull(result);
+
+		return result;
+	}
+
+	public Kindergarten findByUserAccount(final UserAccount userAccount) {
+		Assert.notNull(userAccount);
+		Kindergarten result;
+
+		result = kindergartenRepository.findByUserAccountId(userAccount.getId());
+
+		return result;
+	}
+
+	public Collection<Kindergarten> findAll() {
+		Collection<Kindergarten> result;
+
+		result = this.kindergartenRepository.findAll();
+
+		return result;
+	}
+	
+	public Kindergarten reconstruct(KindergartenForm kindergartenForm, BindingResult binding) {
+
+		Kindergarten result;
+
+		result = create();
+		result.getUserAccount().setUsername(kindergartenForm.getUsername());
+		result.setName(kindergartenForm.getName());
+		result.setSurname(kindergartenForm.getSurname());
+		result.setPhoneNumber(kindergartenForm.getPhoneNumber());
+		result.setEmail(kindergartenForm.getEmail());
+		result.setAddress(kindergartenForm.getAddress());
+		result.setPicture(kindergartenForm.getPicture());
+		result.getUserAccount().setPassword(new Md5PasswordEncoder().encodePassword(kindergartenForm.getPassword(), null));
+		//		result.getUserAccount().setEnabled(true);
+		result.setIdNumber(generateIdNumber());
+
+		comprobarContrasena(kindergartenForm.getPassword(), kindergartenForm.getRepeatPassword(), binding);
+		comprobarPhoneNumber(kindergartenForm.getPhoneNumber(), binding);
+		comprobarUserUnique(kindergartenForm.getUsername(), binding);
+
+		return result;
+	}
+
+	private boolean comprobarContrasena(String password, String passwordRepeat, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(passwordRepeat))
+			result = password.equals(passwordRepeat);
+		else
+			result = false;
+
+		if (!result) {
+			codigos = new String[1];
+			codigos[0] = "kindergarten.password.mismatch";
+			error = new FieldError("kindergartenForm", "password", password, false, codigos, null, "");
+			binding.addError(error);
+		}
+
+		return result;
+	}
+
+	private boolean comprobarPhoneNumber(String phoneNumber, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (phoneNumber == null || phoneNumber.isEmpty()) {
+			result = true;
+		} else {
+			result = false;
+		}
+
+		if (!result) {
+			if (phoneNumber.matches("^[+][a-zA-Z]{2}([(][0-9]{1,3}[)])?[0-9]{4,25}$")) {
+				result = true;
+			} else {
+				codigos = new String[1];
+				codigos[0] = "kindergarten.phoneNumber.error";
+				error = new FieldError("kindergartenForm", "phoneNumber", phoneNumber, false, codigos, null, "");
+				binding.addError(error);
+			}
+		}
+
+		return result;
+	}
+
+	private boolean comprobarUserUnique(String username, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+		Integer userUnique = null;
+
+		userUnique = kindergartenRepository.checkKindergartenByUsername(username);
+		System.out.print(userUnique);
+
+		if (userUnique != null) {
+			result = false;
+		} else {
+			result = true;
+		}
+
+		if (!result) {
+			codigos = new String[1];
+			codigos[0] = "kindergarten.username.mismatch";
+			error = new FieldError("kindergartenForm", "username", username, false, codigos, null, "");
+			binding.addError(error);
+		}
+
+		return result;
+	}
+
+	public String generateIdNumber() {
+		String result = "";
+
+		//  ^[a-zA-Z]{3}-[0-9]{5}$
+		final String characters = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+		final String numbers = "0123456789";
+
+		for (int i = 0; i < 3; i++) {
+			result += characters.charAt((int) (Math.random() * 54));
+		}
+		result += "-";
+
+		for (int i = 0; i < 5; i++) {
+			result += numbers.charAt((int) (Math.random() * 10));
+		}
+
+		Collection<Kindergarten> kindergartens = new ArrayList<Kindergarten>();
+		kindergartens = kindergartenRepository.findByIdNumber(result);
+
+		if (!kindergartens.isEmpty()) {
+			result = generateIdNumber();
+		}
+
+		return result;
+	}
+
+}

@@ -1,0 +1,23 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+
+
+shift.title				= Title
+shift.attendance		= Attendance
+shift.createInscription = Subscribe!
+shift.inscription		= Lesson already started/ No attendance available
+shift.inscriptionAttendance	= No attendance available
+
+shift.create			= Create a new shift
+shift.edit				= Edit
+shift.submit			= Save
+shift.delete			= Delete
+shift.confirm.delete	= Are you sure you want to delete this shift?
+shift.cancel			= Back
+shift.save.error		= Cannot submit this operation. 

@@ -1,0 +1,29 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+caretaker.accountData				= Data of the new account
+caretaker.username					= User name
+caretaker.password					= Password
+caretaker.repeatPassword			= Repeat password
+caretaker.personalData				= Personal data
+caretaker.name						= Name
+caretaker.surname					= Surname
+caretaker.phone						= Phone number
+caretaker.email						= E-mail
+caretaker.address					= Address
+caretaker.picture					= Picture
+caretaker.country					= Country
+caretaker.accept					= Accept
+caretaker.lopd						= Terms and conditions
+caretaker.submit					= Register
+
+caretaker.password.mismatch			= Passwords cannot be blank and must match
+caretaker.postalAddress.error		= The pattern of the postal address is not correct
+caretaker.phoneNumber.error			= The pattern of the phone is not correct
+caretaker.username.mismatch			= This username is already in use
+caretaker.save.error				= Cannot commit this operation

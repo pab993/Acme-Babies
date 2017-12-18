@@ -1,0 +1,136 @@
+
+package domain;
+
+import java.util.Collection;
+import java.util.Date;
+
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.Range;
+import org.springframework.format.annotation.DateTimeFormat;
+
+@Entity
+@Access(AccessType.PROPERTY)
+public class Lesson extends Comentable {
+
+	//Attributes 
+	// =================================================================
+
+	private String	title;
+	private String	description;
+	private Date	startDate;
+	private Date	finishDate;
+	private Integer	shiftsNumber;
+	private Integer	attendance;
+	private Double	price;
+
+
+	//@SafeHtml(whitelistType = WhiteListType.NONE)
+	@NotBlank
+	public String getTitle() {
+		return this.title;
+	}
+	public void setTitle(final String title) {
+		this.title = title;
+	}
+
+	//@SafeHtml(whitelistType = WhiteListType.NONE)
+	@NotBlank
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
+	@NotNull
+	@Temporal(TemporalType.TIMESTAMP)
+	@DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
+	public Date getStartDate() {
+		return this.startDate;
+	}
+
+	public void setStartDate(final Date startDate) {
+		this.startDate = startDate;
+	}
+
+	@NotNull
+	@Temporal(TemporalType.TIMESTAMP)
+	@DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
+	public Date getFinishDate() {
+		return this.finishDate;
+	}
+
+	public void setFinishDate(final Date finishDate) {
+		this.finishDate = finishDate;
+	}
+
+	@NotNull
+	@Min(1)
+	public Integer getShiftsNumber() {
+		return this.shiftsNumber;
+	}
+	public void setShiftsNumber(final Integer shiftsNumber) {
+		this.shiftsNumber = shiftsNumber;
+	}
+
+	@NotNull
+	@Min(1)
+	public Integer getAttendance() {
+		return this.attendance;
+	}
+	public void setAttendance(final Integer attendance) {
+		this.attendance = attendance;
+	}
+
+	@NotNull
+	@Range(min = 1, max = 1000)
+	public Double getPrice() {
+		return this.price;
+	}
+	public void setPrice(final Double price) {
+		this.price = price;
+	}
+
+
+	//Relationships
+	// =================================================================
+
+	private Kindergarten			kindergarten;
+	private Collection<Inscription>	inscriptions;
+
+
+	@NotNull
+	@Valid
+	@ManyToOne(optional = false)
+	public Kindergarten getKindergarten() {
+		return this.kindergarten;
+	}
+
+	public void setKindergarten(final Kindergarten kindergarten) {
+		this.kindergarten = kindergarten;
+	}
+
+	@NotNull
+	@Valid
+	@OneToMany(mappedBy = "lesson")
+	public Collection<Inscription> getInscriptions() {
+		return this.inscriptions;
+	}
+
+	public void setInscriptions(final Collection<Inscription> inscriptions) {
+		this.inscriptions = inscriptions;
+	}
+
+}

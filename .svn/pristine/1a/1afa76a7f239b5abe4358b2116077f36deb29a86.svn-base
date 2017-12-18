@@ -1,0 +1,32 @@
+package repositories;
+
+import java.util.Collection;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import domain.Lesson;
+
+@Repository
+public interface LessonRepository extends JpaRepository<Lesson, Integer> {
+
+	@Query("select l from Lesson l where l.title like %?1% or l.description like %?1% or l.price like %?1%")
+	Collection<Lesson> searchLessonByWords(String keyWord);
+
+	@Query("select l from Lesson l join l.inscriptions i where i.customer.id = ?1")
+	Collection<Lesson> findAllByCustomerId(int id);
+
+	@Query("select l from Lesson l where l.kindergarten.id = ?1")
+	Collection<Lesson> findAllByKindergartenId(int id);
+
+	@Query("select min(k.lessons.size) from Kindergarten k")
+	Double minLessonsPerKindergarten();
+
+	@Query("select avg(k.lessons.size) from Kindergarten k")
+	Double avgLessonsPerKindergarten();
+
+	@Query("select max(k.lessons.size) from Kindergarten k")
+	Double maxLessonsPerKindergarten();
+
+}

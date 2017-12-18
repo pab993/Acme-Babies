@@ -1,0 +1,30 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+customer.accountData				= Data of the new account
+customer.username					= User name
+customer.password					= Password
+customer.repeatPassword				= Repeat password
+customer.personalData				= Personal data
+customer.name						= Name
+customer.surname					= Surname
+customer.phone						= Phone number
+customer.email						= E-mail
+customer.address					= Address
+customer.picture					= Picture
+customer.country					= Country
+customer.accept						= Accept
+customer.lopd						= Terms and conditions
+customer.submit						= Register
+actor.display						= Display Customer
+
+customer.password.mismatch			= Passwords cannot be blank and must match
+customer.postalAddress.error		= The pattern of the postal address is not correct
+customer.phoneNumber.error			= The pattern of the phone is not correct
+customer.username.mismatch					= This username is already in use
+customer.save.error					= Cannot commit this operation

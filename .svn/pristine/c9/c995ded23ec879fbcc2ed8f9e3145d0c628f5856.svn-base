@@ -1,0 +1,131 @@
+
+package services;
+
+import java.util.Collection;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
+import repositories.ShiftRepository;
+import domain.Kindergarten;
+import domain.Lesson;
+import domain.Shift;
+
+@Service
+@Transactional
+public class ShiftService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private ShiftRepository		shiftRepository;
+
+	@Autowired
+	private KindergartenService	kindergartenService;
+
+
+	//Constructor methods ============================================================================
+
+	//Simple CRUD methods ============================================================================
+
+	public Shift findOne(final int shiftId) {
+		Assert.notNull(shiftId);
+
+		Shift result;
+		result = this.shiftRepository.findOne(shiftId);
+
+		return result;
+	}
+
+	public Collection<Shift> findAll() {
+		Collection<Shift> result;
+
+		result = this.shiftRepository.findAll();
+
+		return result;
+	}
+
+	public Shift create(final Lesson lesson) {
+		Shift result;
+		Kindergarten principal;
+
+		principal = this.kindergartenService.findByPrincipal();
+		Assert.notNull(principal);
+		Assert.isInstanceOf(Kindergarten.class, principal);
+
+		result = new Shift();
+		result.setLesson(lesson);
+
+		return result;
+	}
+
+	public Shift save(final Shift shift) {
+		Assert.notNull(shift);
+		Shift result;
+
+		//		final Kindergarten principal = this.kindergartenService.findByPrincipal();
+		//		Assert.notNull(principal);
+		//		Assert.isInstanceOf(Kindergarten.class, principal);
+
+		result = this.shiftRepository.save(shift);
+
+		return result;
+	}
+
+	public void delete(final Shift shift) {
+		Assert.notNull(shift);
+		Kindergarten principal;
+
+		principal = this.kindergartenService.findByPrincipal();
+		Assert.notNull(principal);
+		Assert.isInstanceOf(Kindergarten.class, principal);
+
+		this.shiftRepository.delete(shift);
+	}
+
+	// Other business methods
+	// ===================================================================
+	public Collection<Shift> findAllByLesson(final Lesson lesson) {
+		Assert.notNull(lesson);
+		Collection<Shift> result;
+
+		result = this.shiftRepository.findAllByLessonId(lesson.getId());
+
+		return result;
+	}
+
+	//	public Collection<Lesson> findAllByKindergarten(final Actor actor) {
+	//		Assert.notNull(actor);
+	//		Collection<Lesson> result;
+	//
+	//		result = this.lessonRepository.findAllByKindergartenId(actor.getId());
+	//
+	//		return result;
+	//	}
+
+	public boolean comprobarAttendance(Shift shift, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (shift.getAttendance() == 0) {
+			result = true;
+		} else {
+			result = false;
+		}
+
+		if (result) {
+			codigos = new String[1];
+			codigos[0] = "shift.attendance.error";
+			error = new FieldError("shift", "attendance", shift.getAttendance(), false, codigos, null, "");
+			binding.addError(error);
+
+		}
+
+		return result;
+	}
+}

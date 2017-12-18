@@ -1,0 +1,29 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+kindergarten.accountData				= Data of the new account
+kindergarten.username					= User name
+kindergarten.password					= Password
+kindergarten.repeatPassword			= Repeat password
+kindergarten.personalData				= Personal data
+kindergarten.name						= Name
+kindergarten.surname					= Surname
+kindergarten.phone						= Phone number
+kindergarten.email						= E-mail
+kindergarten.address					= Address
+kindergarten.picture					= Picture
+kindergarten.country					= Country
+kindergarten.accept					= Accept
+kindergarten.lopd						= Terms and conditions
+kindergarten.submit					= Register
+
+kindergarten.password.mismatch			= Passwords cannot be blank and must match
+kindergarten.postalAddress.error		= The pattern of the postal address is not correct
+kindergarten.phoneNumber.error			= The pattern of the phone is not correct
+kindergarten.username.mismatch			= This username is already in use
+kindergarten.save.error				= Cannot commit this operation

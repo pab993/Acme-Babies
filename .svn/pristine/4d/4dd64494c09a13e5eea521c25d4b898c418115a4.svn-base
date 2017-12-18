@@ -1,0 +1,114 @@
+
+package services;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import repositories.InvoiceRepository;
+import domain.Actor;
+import domain.Customer;
+import domain.Inscription;
+import domain.Invoice;
+
+@Service
+@Transactional
+public class InvoiceService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private InvoiceRepository	invoiceRepository;
+
+	@Autowired
+	private CustomerService		customerService;
+
+	@Autowired
+	private InscriptionService	inscriptionService;
+
+
+	//Constructor methods ============================================================================
+
+	//Simple CRUD methods ============================================================================
+
+	public Invoice findOne(final int invoiceId) {
+		Assert.notNull(invoiceId);
+
+		Invoice result;
+		result = this.invoiceRepository.findOne(invoiceId);
+
+		return result;
+	}
+
+	public Collection<Invoice> findAll() {
+		Collection<Invoice> result;
+
+		result = this.invoiceRepository.findAll();
+
+		return result;
+	}
+
+	public Collection<Invoice> findAllByActor(final Actor actor) {
+		Assert.notNull(actor);
+		Collection<Invoice> result;
+
+		result = this.invoiceRepository.findAllByActorId(actor.getId());
+
+		return result;
+	}
+
+	public Invoice create(final Inscription inscription) {
+		Assert.isInstanceOf(Customer.class, this.customerService.findByPrincipal());
+		final Invoice result;
+
+		final Invoice invoice = new Invoice();
+		invoice.setCreateMoment(new Date(System.currentTimeMillis() - 1));
+		invoice.setLabel(this.generateLabel());
+		invoice.setConcept(inscription.getLesson().getTitle());
+		invoice.setTotalPrice(inscription.getLesson().getPrice());
+		invoice.setInscription(inscription);
+
+		this.inscriptionService.save(inscription);
+
+		result = this.save(invoice);
+
+		return result;
+	}
+
+	public Invoice save2(final Invoice invoice) {
+		Assert.notNull(invoice);
+
+		return this.invoiceRepository.save(invoice);
+	}
+
+	public Invoice save(final Invoice invoice) {
+		Assert.notNull(invoice);
+		Assert.isInstanceOf(Customer.class, this.customerService.findByPrincipal());
+
+		final Invoice invoiceRes = this.invoiceRepository.save(invoice);
+
+		return invoiceRes;
+	}
+
+	public String generateLabel() {
+		String result = "_IN";
+		Collection<Invoice> invoices = new HashSet<Invoice>();
+		invoices = this.findAll();
+
+		final String characters = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789";
+
+		for (int i = 0; i < 5; i++)
+			result += characters.charAt((int) (Math.random() * 64));
+
+		for (final Invoice i : invoices)
+			if (i.getLabel().equals(result))
+				result = this.generateLabel();
+
+		return result;
+	}
+}

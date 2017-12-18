@@ -1,0 +1,80 @@
+
+package services;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import repositories.CaretakerRepository;
+import security.Authority;
+import security.LoginService;
+import security.UserAccount;
+import domain.Caretaker;
+
+@Service
+@Transactional
+public class CaretakerService {
+
+	//Managed Repository =============================================================================
+
+	@Autowired
+	private CaretakerRepository	caretakerRepository;
+
+
+	//Simple CRUD methods ============================================================================
+
+	public Caretaker create() {
+		Caretaker result;
+		UserAccount userAccount;
+		Authority authority;
+
+		authority = new Authority();
+		userAccount = new UserAccount();
+
+		authority.setAuthority("CARETAKER");
+		userAccount.addAuthority(authority);
+
+		result = new Caretaker();
+
+		result.setUserAccount(userAccount);
+
+		return result;
+	}
+
+	public Caretaker save(Caretaker caretaker) {
+		Assert.notNull(caretaker);
+		Assert.notNull(caretaker.getUserAccount());
+		Caretaker result;
+
+		result = caretakerRepository.save(caretaker);
+
+		return result;
+	}
+
+	//Other Business Methods =========================================================================
+
+	public Caretaker findByPrincipal() {
+		Caretaker result;
+		UserAccount userAccount;
+
+		userAccount = LoginService.getPrincipal();
+		Assert.notNull(userAccount);
+
+		result = this.findByUserAccount(userAccount);
+		Assert.notNull(result);
+
+		return result;
+	}
+
+	public Caretaker findByUserAccount(final UserAccount userAccount) {
+		Assert.notNull(userAccount);
+		Caretaker result;
+
+		result = caretakerRepository.findByUserAccountId(userAccount.getId());
+
+		return result;
+	}
+
+}

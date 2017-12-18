@@ -1,0 +1,13 @@
+
+package repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import domain.Caretaker;
+
+public interface CaretakerRepository extends JpaRepository<Caretaker, Integer> {
+
+	@Query("select c from Caretaker c where c.userAccount.id = ?1")
+	Caretaker findByUserAccountId(int userAccountId);
+}

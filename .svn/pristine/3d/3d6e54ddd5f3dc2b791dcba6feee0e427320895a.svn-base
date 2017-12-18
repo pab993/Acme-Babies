@@ -1,0 +1,28 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+offer.createMoment		= Creation Moment
+offer.title				= Title
+offer.description		= Description
+offer.price				= Price
+offer.info				= Offer's info	
+offer.display			= Display Offer
+offer.search			= Search for an Offer
+
+actor.display			= Actor's Display
+
+apply.create			= Apply!
+
+offer.create			= Create a new offer
+offer.edit				= Edit
+offer.submit			= Submit
+offer.delete			= Delete
+offer.confirm.delete	= Are you sure to delete this offer?
+offer.cancel			= Back
+offer.save.error		= Cannot commit operation
+offer.delete.error		= Cannot delete this offer

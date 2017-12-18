@@ -1,0 +1,135 @@
+
+package controllers;
+
+import java.util.Collection;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import services.LessonService;
+import domain.Lesson;
+
+@Controller
+@RequestMapping("/lesson")
+public class LessonController extends AbstractController {
+
+	//Services
+	// ============================================================================
+
+	@Autowired
+	private LessonService	lessonService;
+
+
+	//Constructors
+	// ============================================================================
+
+	public LessonController() {
+		super();
+	}
+
+	//List
+	//=============================================================================
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	public ModelAndView list() {
+		ModelAndView result;
+		Collection<Lesson> lessons;
+
+		lessons = this.lessonService.findAll();
+
+		result = new ModelAndView("lesson/list");
+		result.addObject("lessons", lessons);
+		result.addObject("requestURI", "lesson/list.do");
+
+		return result;
+	}
+
+	// Create
+	// =================================================================================================
+
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
+	public ModelAndView create() {
+		ModelAndView result;
+		final Lesson lesson = this.lessonService.create();
+
+		result = this.createEditModelAndView(lesson);
+
+		return result;
+	}
+
+	// Edition
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public ModelAndView edit(@RequestParam final int lessonId) {
+		ModelAndView result;
+		final Lesson lesson = this.lessonService.findOne(lessonId);
+
+		result = this.createEditModelAndView(lesson);
+		return result;
+
+	}
+
+	// Save
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
+	public ModelAndView save(@Valid final Lesson lesson, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+
+			if (binding.hasErrors())
+				result = this.createEditModelAndView(lesson, "lesson.save.error");
+			else {
+				result = new ModelAndView("redirect:/lesson/list.do");
+				this.lessonService.save(lesson);
+
+			}
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(lesson, "lesson.save.error");
+		}
+
+		return result;
+	}
+
+	//Deleting -------------------------------------------------------------------------------------
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "delete")
+	public ModelAndView delete(final Lesson lesson, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+			this.lessonService.delete(lesson);
+			result = new ModelAndView("redirect:/lesson/list.do");
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(lesson, "lesson.delete.error");
+		}
+		return result;
+	}
+
+	// Ancilliary methods
+	// =================================================================================================
+
+	private ModelAndView createEditModelAndView(final Lesson lesson) {
+
+		return this.createEditModelAndView(lesson, null);
+	}
+
+	private ModelAndView createEditModelAndView(final Lesson lesson, final String message) {
+
+		final ModelAndView resul = new ModelAndView("lesson/edit");
+
+		resul.addObject("lesson", lesson);
+		resul.addObject("message", message);
+		return resul;
+	}
+
+}

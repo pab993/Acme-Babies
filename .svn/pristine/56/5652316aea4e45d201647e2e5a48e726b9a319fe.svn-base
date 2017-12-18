@@ -1,0 +1,49 @@
+# messages_es.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+master.page.administrator			= Administrador
+master.page.administrator.action.1	= Acción 1
+master.page.administrator.action.2	= Acción 2
+
+master.page.customer				= Cliente
+master.page.customer.register		= Registrarse como cliente
+master.page.caretaker.register		= Registrarse como canguro
+master.page.kindergarten.register	= Registrarse como guardería
+
+master.page.customer.list			= Lista de Clientes
+
+master.page.actor.profile			= Ver perfil
+
+master.page.profile 				= Perfil
+master.page.profile.action.1 		= Acción 1
+master.page.profile.action.2		= Acción 2
+master.page.profile.action.3		= Acción 3
+
+master.page.offer.list				= Lista de Ofertas
+master.page.offer.search			= Buscar Oferta
+
+master.page.lesson.list				= Lista de Lecciones
+master.page.lesson.search			= Buscar Lección
+
+master.page.apply.list				= Mis aplicaciones
+
+master.page.listByCustomerLesson	= Mis Lecciones
+master.page.listByCustomerOffer		= Mis Ofertas
+
+master.page.invoice.list			= Lista de Facturas
+
+master.page.login 					= Entrar
+master.page.logout 					= Salir
+
+master.page.eraseMe					= Información sobre datos personales
+master.page.mostrarBarraCookies		= Cookies
+master.page.barraCookies1			= Se hace uso de las cookies JSESSIONID y LANGUAGE
+master.page.barraCookies2			= Más información
+
+master.page.configurationSystem		= Configuración del sistema
+master.page.creditCard.edit			= Tarjeta de crédito

@@ -1,0 +1,209 @@
+package services;
+
+import java.util.Collection;
+import java.util.HashSet;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+
+import repositories.CustomerRepository;
+import security.Authority;
+import security.LoginService;
+import security.UserAccount;
+import domain.Customer;
+import domain.Inscription;
+import domain.Kindergarten;
+import domain.Lesson;
+import forms.CustomerForm;
+
+@Service
+@Transactional
+public class CustomerService {
+
+	// Managed Repository
+	// =============================================================================
+
+	@Autowired
+	private CustomerRepository customerRepository;
+
+	// Simple CRUD methods
+	// ============================================================================
+
+	public Customer create() {
+		Customer result;
+		UserAccount userAccount;
+		Authority authority;
+
+		authority = new Authority();
+		userAccount = new UserAccount();
+
+		authority.setAuthority("CUSTOMER");
+		userAccount.addAuthority(authority);
+
+		result = new Customer();
+
+		result.setUserAccount(userAccount);
+
+		return result;
+	}
+
+	public Customer save(Customer customer) {
+		Assert.notNull(customer);
+		Assert.notNull(customer.getUserAccount());
+		Customer result;
+
+		result = customerRepository.save(customer);
+
+		return result;
+	}
+
+	// Other Business Methods
+	// =========================================================================
+
+	public Customer findByPrincipal() {
+		Customer result;
+		UserAccount userAccount;
+
+		userAccount = LoginService.getPrincipal();
+		Assert.notNull(userAccount);
+
+		result = this.findByUserAccount(userAccount);
+		Assert.notNull(result);
+
+		return result;
+	}
+
+	public Customer findByUserAccount(final UserAccount userAccount) {
+		Assert.notNull(userAccount);
+		Customer result;
+
+		result = customerRepository.findByUserAccountId(userAccount.getId());
+
+		return result;
+	}
+
+	public Collection<Customer> findAllByKindergarten(Kindergarten kindergarten) {
+		Collection<Customer> result = new HashSet<Customer>();
+
+		for (Lesson l : kindergarten.getLessons()) {
+			for (Inscription i : l.getInscriptions()) {
+
+				if (!result.contains(i.getCustomer())) {
+					result.add(i.getCustomer());
+				}
+			}
+		}
+
+		return result;
+	}
+
+	public Customer reconstruct(CustomerForm customerForm, BindingResult binding) {
+
+		Customer result;
+
+		result = create();
+		result.getUserAccount().setUsername(customerForm.getUsername());
+		result.setName(customerForm.getName());
+		result.setSurname(customerForm.getSurname());
+		result.setPhoneNumber(customerForm.getPhoneNumber());
+		result.setEmail(customerForm.getEmail());
+		result.setAddress(customerForm.getAddress());
+		result.setPicture(customerForm.getPicture());
+		result.getUserAccount().setPassword(
+				new Md5PasswordEncoder().encodePassword(
+						customerForm.getPassword(), null));
+		// result.getUserAccount().setEnabled(true);
+
+		comprobarContrasena(customerForm.getPassword(),
+				customerForm.getRepeatPassword(), binding);
+		comprobarPhoneNumber(customerForm.getPhoneNumber(), binding);
+		comprobarUserUnique(customerForm.getUsername(), binding);
+
+		return result;
+	}
+
+	private boolean comprobarContrasena(String password, String passwordRepeat,
+			BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (StringUtils.isNotBlank(password)
+				&& StringUtils.isNotBlank(passwordRepeat))
+			result = password.equals(passwordRepeat);
+		else
+			result = false;
+
+		if (!result) {
+			codigos = new String[1];
+			codigos[0] = "customer.password.mismatch";
+			error = new FieldError("customerForm", "password", password, false,
+					codigos, null, "");
+			binding.addError(error);
+		}
+
+		return result;
+	}
+
+	private boolean comprobarPhoneNumber(String phoneNumber,
+			BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+
+		if (phoneNumber == null || phoneNumber.isEmpty()) {
+			result = true;
+		} else {
+			result = false;
+		}
+
+		if (!result) {
+			if (phoneNumber
+					.matches("^[+][a-zA-Z]{2}([(][0-9]{1,3}[)])?[0-9]{4,25}$")) {
+				result = true;
+			} else {
+				codigos = new String[1];
+				codigos[0] = "customer.phoneNumber.error";
+				error = new FieldError("customerForm", "phoneNumber",
+						phoneNumber, false, codigos, null, "");
+				binding.addError(error);
+			}
+		}
+
+		return result;
+	}
+
+	private boolean comprobarUserUnique(String username, BindingResult binding) {
+		FieldError error;
+		String[] codigos;
+		boolean result;
+		Integer userUnique = null;
+
+		userUnique = customerRepository.checkCustomerByUsername(username);
+		System.out.print(userUnique);
+
+		if (userUnique != null) {
+			result = false;
+		} else {
+			result = true;
+		}
+
+		if (!result) {
+			codigos = new String[1];
+			codigos[0] = "customer.username.mismatch";
+			error = new FieldError("customerForm", "username", username, false,
+					codigos, null, "");
+			binding.addError(error);
+		}
+
+		return result;
+	}
+
+}

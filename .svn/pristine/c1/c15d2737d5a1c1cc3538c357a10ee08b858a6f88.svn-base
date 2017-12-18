@@ -1,0 +1,34 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+information.apply				= You are going to enroll in this offer. Are you sure?
+apply.create 				= Yes
+apply.submit 				= Submit
+apply.edit					= Edit
+apply.display				= Display Offer
+apply.delete 				= Delete
+apply.confirm.delete 		= Are you sure you want to delete this apply?
+apply.cancel 				= Cancel
+
+apply.create.error			= Cannot submit this operation. It is not possible to sign up for an offer if you do not have a valid credit card or you have already apply.
+apply.saveStatus.error		= Cannot change the status of this apply
+apply.save.error 			= Cannot edit this offer
+apply.delete.error			= Cannot delete this apply
+
+apply.name				= Name
+apply.surname			= Surname
+apply.observations		= Observations
+apply.days				= Days
+apply.counterOffer		= Counteroffer
+apply.status			= Status
+
+apply.status.accepted  = ACCEPTED
+apply.status.pending  = PENDING
+apply.status.rejected  = REJECTED
+
+apply.commit.error = Cannot submit this operation. It is not possible to sign up for an offer if you do not have a valid credit card or you have already apply.

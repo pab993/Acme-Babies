@@ -1,0 +1,23 @@
+# messages.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+actor.name						= Name
+actor.surname					= Surname
+actor.email						= Email
+actor.phone						= Phone Number
+actor.address					= Address
+actor.picture					= Picture
+
+actor.edit.profile				= Edit profile
+actor.personalData				= Personal data
+actor.submit					= Save
+actor.save.error				= Cannot commit this operation
+actor.postalAddress.error		= The pattern of the postal address is not correct
+actor.vat.error					= The pattern of the vat is not correct
+actor.vat.empty.error			= The vat cannot be empty
+actor.cancel					= Back

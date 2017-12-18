@@ -1,0 +1,283 @@
+
+package controllers;
+
+import java.util.Collection;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import services.ActorService;
+import services.ApplyService;
+import services.CustomerService;
+import services.OfferService;
+import domain.Actor;
+import domain.Apply;
+import domain.Customer;
+import domain.Offer;
+
+@Controller
+@RequestMapping("/apply")
+public class ApplyController extends AbstractController {
+
+	// Services
+	// ============================================================================
+
+	@Autowired
+	private ApplyService	applyService;
+
+	@Autowired
+	private OfferService	offerService;
+
+	@Autowired
+	private CustomerService	customerService;
+
+	@Autowired
+	private ActorService	actorService;
+
+
+	// Constructors
+	// ============================================================================
+
+	public ApplyController() {
+		super();
+	}
+
+	// List
+	// =============================================================================
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	public ModelAndView list() {
+		ModelAndView result;
+		Collection<Apply> applies;
+		Actor actor;
+
+		actor = this.actorService.findByPrincipal();
+
+		applies = this.applyService.findAllByCaretaker(actor);
+
+		result = new ModelAndView("apply/list");
+		result.addObject("applies", applies);
+		result.addObject("actor", actor);
+		result.addObject("requestURI", "apply/list.do");
+
+		return result;
+	}
+
+	// List customer
+	// =============================================================================
+
+	@RequestMapping(value = "/customer/list", method = RequestMethod.GET)
+	public ModelAndView listAppliesByCustomer() {
+		ModelAndView result;
+		Collection<Apply> applies;
+		Customer customer;
+
+		customer = this.customerService.findByPrincipal();
+
+		applies = this.applyService.findAllByCustomer(customer);
+
+		result = new ModelAndView("apply/list");
+		result.addObject("applies", applies);
+		result.addObject("requestURI", "apply/customer/list.do");
+
+		return result;
+	}
+
+	// Create
+	// =================================================================================================
+
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
+	public ModelAndView create(@RequestParam final int offerId) {
+		ModelAndView result;
+
+		Offer offer;
+		Apply apply;
+
+		try {
+
+			offer = this.offerService.findOne(offerId);
+			apply = this.applyService.create(offer);
+
+			result = this.createEditModelAndView(apply);
+
+		} catch (final Throwable e) {
+			result = this.listAppliesByCustomer();
+			result.addObject("message", "apply.commit.error");
+		}
+		return result;
+	}
+
+	// Edition
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public ModelAndView edit(@RequestParam final int applyId) {
+		ModelAndView result;
+
+		try {
+			final Apply apply = this.applyService.findOne(applyId);
+			Assert.notNull(apply);
+			Assert.isTrue(apply.getCustomer().equals(this.customerService.findByPrincipal()));
+			Assert.isTrue(apply.getStatus().equals("PENDING"));
+
+			result = this.createEditModelAndView(apply);
+
+		} catch (final Throwable oops) {
+
+			result = new ModelAndView("redirect:/panic/misc.do");
+
+		}
+
+		return result;
+
+	}
+
+	// Edition
+	// =============================================================================
+
+	@RequestMapping(value = "/editStatus", method = RequestMethod.GET)
+	public ModelAndView editStatus(@RequestParam final int applyId) {
+		ModelAndView result;
+
+		try {
+			final Apply apply = this.applyService.findOne(applyId);
+			Assert.notNull(apply);
+			Assert.isTrue(apply.getOffer().getCaretaker().equals(this.actorService.findByPrincipal()));
+			Assert.isTrue(apply.getStatus().equals("PENDING"));
+
+			result = this.createEditModelAndViewStatus(apply);
+
+		} catch (final Throwable oops) {
+			result = new ModelAndView("redirect:/panic/misc.do");
+		}
+		return result;
+
+	}
+
+	// Save
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "create")
+	public ModelAndView saveCreate(@Valid final Apply apply, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+
+			if (binding.hasErrors())
+				result = this.createEditModelAndView(apply, "apply.create.error");
+			else {
+				result = new ModelAndView("redirect:/apply/customer/list.do");
+				this.applyService.save(apply);
+
+			}
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(apply, "apply.create.error");
+		}
+
+		return result;
+	}
+
+	// Save
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
+	public ModelAndView save(@Valid final Apply apply, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+
+			if (binding.hasErrors())
+				result = this.createEditModelAndView(apply, "apply.save.error");
+			else {
+				result = new ModelAndView("redirect:/apply/customer/list.do");
+				this.applyService.saveEdit(apply);
+
+			}
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(apply, "apply.save.error");
+		}
+
+		return result;
+	}
+
+	// Save
+	// =============================================================================
+
+	@RequestMapping(value = "/editStatus", method = RequestMethod.POST, params = "save")
+	public ModelAndView saveStatus(@Valid final Apply apply, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+
+			if (binding.hasErrors())
+				result = this.createEditModelAndViewStatus(apply, "apply.saveStatus.error");
+			else {
+				result = new ModelAndView("redirect:/apply/list.do");
+				this.applyService.saveStatus(apply);
+
+			}
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndViewStatus(apply, "apply.saveStatus.error");
+		}
+
+		return result;
+	}
+
+	// Deleting
+	// -------------------------------------------------------------------------------------
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "delete")
+	public ModelAndView delete(final Apply apply, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+			this.applyService.delete(apply);
+			result = new ModelAndView("redirect:/apply/customer/list.do");
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(apply, "apply.delete.error");
+		}
+		return result;
+	}
+
+	// Ancilliary methods
+	// =================================================================================================
+
+	private ModelAndView createEditModelAndView(final Apply apply) {
+
+		return this.createEditModelAndView(apply, null);
+	}
+
+	private ModelAndView createEditModelAndView(final Apply apply, final String message) {
+
+		final ModelAndView resul = new ModelAndView("apply/edit");
+
+		resul.addObject("apply", apply);
+		resul.addObject("message", message);
+
+		return resul;
+	}
+
+	private ModelAndView createEditModelAndViewStatus(final Apply apply) {
+
+		return this.createEditModelAndViewStatus(apply, null);
+	}
+
+	private ModelAndView createEditModelAndViewStatus(final Apply apply, final String message) {
+
+		final ModelAndView resul = new ModelAndView("apply/editStatus");
+
+		resul.addObject("apply", apply);
+		resul.addObject("message", message);
+
+		return resul;
+	}
+
+}

@@ -1,0 +1,15 @@
+# messages_es.properties
+#
+# Copyright (C) 2017 Universidad de Sevilla
+# 
+# The use of this project is hereby constrained to the conditions of the 
+# TDG Licence, a copy of which you may download from 
+# http://www.tdg-seville.info/License.html
+
+dashboard.minAvgMaxLessonsPerKindergarten 				= min, med y max de lecciones por guarderia
+dashboard.kindergartenWithMoreCustomersInLessons		= Guarderia con mas clientes inscritos en sus lecciones
+dashboard.kindergartenWithLessCustomersInLessons		= Guarderia con menos clientes inscritos en sus lecciones
+dashboard.caretakerWithMoreAssessments					= Cuidador con mas valoraciones
+dashboard.lessonWithMoreAssessments						= Leccion con mas valoraciones
+dashboard.rankingCaretakersAcceptedOffers				= Ranking de cuidadores en funcion de sus ofertas aceptadas.
+dashboard.rankingKindergartensCreatedLessons			= Ranking de guarderias en funcion de sus lecciones creadas.

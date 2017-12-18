@@ -1,0 +1,160 @@
+
+package controllers;
+
+import java.util.Collection;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import services.CustomerService;
+import services.InscriptionService;
+import services.InvoiceService;
+import services.ShiftService;
+import domain.Customer;
+import domain.Inscription;
+import domain.Lesson;
+import domain.Shift;
+
+@Controller
+@RequestMapping("/inscription")
+public class InscriptionController extends AbstractController {
+
+	// Services
+	// ============================================================================
+
+	@Autowired
+	private InscriptionService	inscriptionService;
+
+	@Autowired
+	private InvoiceService		invoiceService;
+
+	//	@Autowired
+	//	private LessonService		lessonService;
+
+	@Autowired
+	private CustomerService		customerService;
+
+	@Autowired
+	private ShiftService		shiftService;
+
+
+	// Constructors
+	// ============================================================================
+
+	public InscriptionController() {
+		super();
+	}
+
+	// List customer
+	// =============================================================================
+
+	@RequestMapping(value = "/customer/list", method = RequestMethod.GET)
+	public ModelAndView listInscriptionsByCustomer() {
+		ModelAndView result;
+		Collection<Inscription> inscriptions;
+		Customer customer;
+
+		customer = this.customerService.findByPrincipal();
+
+		inscriptions = this.inscriptionService.findAllByCustomer(customer);
+
+		result = new ModelAndView("inscription/list");
+		result.addObject("inscriptions", inscriptions);
+		result.addObject("requestURI", "inscription/customer/list.do");
+
+		return result;
+	}
+
+	// Create
+	// =================================================================================================
+
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
+	public ModelAndView create(@RequestParam final int shiftId) {
+		ModelAndView result;
+
+		Lesson lesson;
+		Inscription inscription;
+		Shift shift;
+		Integer attendance;
+
+		try {
+
+			shift = this.shiftService.findOne(shiftId);
+			lesson = shift.getLesson();
+			Assert.isTrue(this.inscriptionService.countIncriptionByLessorForCustomer(lesson.getId(), this.customerService.findByPrincipal().getId()) == 0);
+			inscription = this.inscriptionService.create(lesson);
+			attendance = shift.getAttendance() - 1;
+			shift.setAttendance(attendance);
+			this.shiftService.save(shift);
+			result = this.createEditModelAndView(inscription);
+		} catch (final Throwable e) {
+			result = this.listInscriptionsByCustomer();
+			result.addObject("message", "inscription.commit.error");
+		}
+		return result;
+	}
+
+	// Edition
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public ModelAndView edit(@RequestParam final int inscriptionId) {
+		ModelAndView result;
+		final Inscription inscription = this.inscriptionService.findOne(inscriptionId);
+
+		result = this.createEditModelAndView(inscription);
+		return result;
+
+	}
+
+	// Save
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
+	public ModelAndView save(@Valid final Inscription inscription, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+
+			if (binding.hasErrors())
+				result = this.createEditModelAndView(inscription, "inscription.save.error");
+			else {
+				result = new ModelAndView("redirect:/lesson/list.do");
+				final Inscription saved = this.inscriptionService.save(inscription);
+				this.invoiceService.create(saved);
+
+			}
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(inscription, "inscription.save.error");
+		}
+
+		return result;
+	}
+
+	// Ancilliary methods
+	// =================================================================================================
+
+	private ModelAndView createEditModelAndView(final Inscription inscription) {
+
+		return this.createEditModelAndView(inscription, null);
+	}
+
+	private ModelAndView createEditModelAndView(final Inscription inscription, final String message) {
+
+		final ModelAndView resul = new ModelAndView("inscription/edit");
+
+		resul.addObject("inscription", inscription);
+		resul.addObject("message", message);
+
+		return resul;
+	}
+
+}

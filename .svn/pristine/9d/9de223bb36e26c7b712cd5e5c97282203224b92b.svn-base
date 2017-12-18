@@ -1,0 +1,48 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+
+<%@taglib prefix="jstl" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@taglib prefix="security"
+	uri="http://www.springframework.org/security/tags"%>
+<%@taglib prefix="display" uri="http://displaytag.sf.net"%>
+
+<%@ taglib prefix="acme" tagdir="/WEB-INF/tags"%>
+
+<form:form action="shift/edit.do" modelAttribute="shift">
+
+	<form:hidden path="id"/>
+	<form:hidden path="version"/>
+
+	<form:hidden path="lesson" />
+
+<br/>
+	
+	<form:label path = "title">
+			<spring:message code = "shift.title" />:
+	</form:label>
+	
+	<form:select code="shift.title" path="title">
+		<form:option value="MORNING"><spring:message code = "shift.title.morning"/></form:option>
+		<form:option value="AFTERNOON"><spring:message code = "shift.title.afternoon"/></form:option>
+		<form:option value="NIGHT"><spring:message code = "shift.title.night"/></form:option>
+	</form:select>	
+	<br />
+
+	<acme:textbox code="shift.attendance" path="attendance" />
+	<br />
+		
+	<acme:submit name="save" code="shift.submit" />
+	
+	<jstl:if test = "${shift.id != 0}">
+	<input type="submit" name="delete"
+		value="<spring:message code="shift.delete" />" 
+		onclick="return confirm('<spring:message code = "shift.confirm.delete"/>')"/>
+	</jstl:if>
+	
+	<acme:cancel code="shift.cancel" url="lesson/kindergarten/list.do" />
+
+</form:form>

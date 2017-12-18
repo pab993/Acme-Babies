@@ -1,0 +1,52 @@
+
+package domain;
+
+import java.util.Collection;
+
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.SafeHtml;
+import org.hibernate.validator.constraints.SafeHtml.WhiteListType;
+
+@Entity
+@Access(AccessType.PROPERTY)
+public class Caretaker extends Actor {
+
+	private String	idNumber;
+
+
+	@SafeHtml(whitelistType = WhiteListType.NONE)
+	@Pattern(regexp = "^[a-zA-Z]{3}-[0-9]{5}$")
+	@Column(unique = true)
+	public String getIdNumber() {
+		return this.idNumber;
+	}
+
+	public void setIdNumber(final String idNumber) {
+		this.idNumber = idNumber;
+	}
+
+
+	// Relationships
+	// =======================================================
+
+	private Collection<Offer>	offers;
+
+
+	@Valid
+	@OneToMany(mappedBy = "caretaker")
+	public Collection<Offer> getOffers() {
+		return this.offers;
+	}
+
+	public void setOffers(final Collection<Offer> offers) {
+		this.offers = offers;
+	}
+
+}

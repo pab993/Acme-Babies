@@ -1,0 +1,57 @@
+
+package domain;
+
+import java.util.Collection;
+
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.SafeHtml;
+import org.hibernate.validator.constraints.SafeHtml.WhiteListType;
+
+@Entity
+@Access(AccessType.PROPERTY)
+public class Kindergarten extends Actor {
+
+	// Attributes
+	// =================================================================
+
+	private String	idNumber;
+
+
+	@SafeHtml(whitelistType = WhiteListType.NONE)
+	@Pattern(regexp = "^[a-zA-Z]{3}-[0-9]{5}$")
+	@Column(unique = true)
+	public String getIdNumber() {
+		return this.idNumber;
+	}
+
+	public void setIdNumber(final String idNumber) {
+		this.idNumber = idNumber;
+	}
+
+
+	// Relationships
+	// =================================================================
+
+	private Collection<Lesson>	lessons;
+
+
+	@Valid
+	@ElementCollection
+	@OneToMany(mappedBy = "kindergarten")
+	public Collection<Lesson> getLessons() {
+		return this.lessons;
+	}
+
+	public void setLessons(final Collection<Lesson> lessons) {
+		this.lessons = lessons;
+	}
+
+}

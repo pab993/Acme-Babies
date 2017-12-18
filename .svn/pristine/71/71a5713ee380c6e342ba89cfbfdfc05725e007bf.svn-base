@@ -1,0 +1,185 @@
+
+package controllers;
+
+import java.util.Collection;
+import java.util.Date;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import services.ActorService;
+import services.LessonService;
+import services.ShiftService;
+import domain.Lesson;
+import domain.Shift;
+
+@Controller
+@RequestMapping("/shift")
+public class ShiftController extends AbstractController {
+
+	// Services
+	// ============================================================================
+
+	@Autowired
+	private ShiftService	shiftService;
+
+	@Autowired
+	private LessonService	lessonService;
+
+	@Autowired
+	private ActorService	actorService;
+
+
+	// Constructors
+	// ============================================================================
+
+	public ShiftController() {
+		super();
+	}
+
+	// List
+	// =============================================================================
+
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	public ModelAndView list(@RequestParam final int lessonId) {
+		ModelAndView result;
+		Collection<Shift> shifts;
+		Lesson lesson;
+		Date now;
+		Boolean display;
+
+		try {
+			now = new Date(System.currentTimeMillis());
+			lesson = this.lessonService.findOne(lessonId);
+			Assert.notNull(lesson);
+
+			shifts = this.shiftService.findAllByLesson(lesson);
+			Assert.notNull(shifts);
+
+			display = true;
+
+			result = new ModelAndView("shift/list");
+			result.addObject("shifts", shifts);
+			result.addObject("now", now);
+			result.addObject("display", display);
+		} catch (final Throwable oops) {
+			result = new ModelAndView("redirect:/panic/misc.do");
+		}
+
+		return result;
+	}
+
+	// Create
+	// =================================================================================================
+
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
+	public ModelAndView create(@RequestParam final int lessonId) {
+		ModelAndView result;
+		Lesson lesson;
+		Shift shift;
+
+		try {
+			lesson = this.lessonService.findOne(lessonId);
+			Assert.notNull(lesson);
+			Assert.isTrue(lesson.getKindergarten().equals(this.actorService.findByPrincipal()));
+
+			shift = this.shiftService.create(lesson);
+
+			result = this.createEditModelAndView(shift);
+
+		} catch (final Throwable oops) {
+			result = new ModelAndView("redirect:/panic/misc.do");
+		}
+
+		return result;
+	}
+
+	// Edition
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
+	public ModelAndView edit(@RequestParam final int shiftId) {
+		ModelAndView result;
+
+		try {
+			final Shift shift = this.shiftService.findOne(shiftId);
+			Assert.notNull(shift);
+			Assert.isTrue(shift.getLesson().getKindergarten().equals(this.actorService.findByPrincipal()));
+
+			result = this.createEditModelAndView(shift);
+
+		} catch (final Throwable oops) {
+			result = new ModelAndView("redirect:/panic/misc.do");
+		}
+
+		return result;
+
+	}
+
+	// Save
+	// =============================================================================
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
+	public ModelAndView save(@Valid final Shift shift, final BindingResult binding) {
+		ModelAndView result;
+
+		shiftService.comprobarAttendance(shift, binding);
+		try {
+
+			if (binding.hasErrors())
+				result = this.createEditModelAndView(shift, "shift.save.error");
+			else {
+				result = new ModelAndView("redirect:/lesson/kindergarten/list.do");
+				this.shiftService.save(shift);
+
+			}
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(shift, "shift.save.error");
+		}
+
+		return result;
+	}
+
+	// Deleting
+	// -------------------------------------------------------------------------------------
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "delete")
+	public ModelAndView delete(final Shift shift, final BindingResult binding) {
+		ModelAndView result;
+
+		try {
+			this.shiftService.delete(shift);
+			result = new ModelAndView("redirect:/lesson/kindergarten/list.do");
+		} catch (final Throwable oops) {
+			result = this.createEditModelAndView(shift, "shift.delete.error");
+		}
+		return result;
+	}
+
+	// Ancilliary methods
+	// =================================================================================================
+
+	private ModelAndView createEditModelAndView(final Shift shift) {
+
+		return this.createEditModelAndView(shift, null);
+	}
+
+	private ModelAndView createEditModelAndView(final Shift shift, final String message) {
+
+		final ModelAndView resul = new ModelAndView("shift/edit");
+
+		resul.addObject("shift", shift);
+		resul.addObject("message", message);
+
+		return resul;
+	}
+
+}

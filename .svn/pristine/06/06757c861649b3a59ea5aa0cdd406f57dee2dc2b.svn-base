@@ -1,0 +1,147 @@
+
+package services;
+
+import javax.transaction.Transactional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import utilities.AbstractTest;
+import domain.Offer;
+
+@Transactional
+@ContextConfiguration(locations = {
+	"classpath:spring/junit.xml"
+})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class OfferServiceTest extends AbstractTest {
+
+	// The SUT
+	// ====================================================
+
+	@Autowired
+	private OfferService	offerService;
+
+
+	// Tests
+	// ====================================================
+
+	/*
+	 * Create and edit an offer.
+	 * 
+	 * En este caso de uso se comprobamos que un usuario logueado como "Caretaker"
+	 * puede crear una oferta y editarla (save) para cuidar niños.
+	 */
+
+	public void createAndEditOfferTest(final String username, final Class<?> expected) {
+		Class<?> caught = null;
+
+		try {
+
+			this.authenticate(username);
+
+			final Offer offer = this.offerService.create();
+
+			offer.setDescription("DescriptionTest");
+			offer.setPrice(100.0);
+			offer.setTitle("TitleTest");
+
+			this.offerService.save(offer);
+
+			this.unauthenticate();
+
+		} catch (final Throwable oops) {
+
+			caught = oops.getClass();
+
+		}
+
+		this.checkExceptions(expected, caught);
+	}
+
+	/*
+	 * Delete an offer.
+	 * 
+	 * En este caso de uso se comprobamos que un usuario logueado como "Caretaker"
+	 * puede borrar una oferta siempre y cuando no tenga applies.
+	 */
+
+	public void deleteOfferTest(final String username, final int offerId, final Class<?> expected) {
+		Class<?> caught = null;
+
+		try {
+
+			this.authenticate(username);
+
+			final Offer offer = this.offerService.findOne(offerId);
+
+			this.offerService.delete(offer);
+
+			this.unauthenticate();
+
+		} catch (final Throwable oops) {
+
+			caught = oops.getClass();
+
+		}
+
+		this.checkExceptions(expected, caught);
+	}
+	// Drivers
+	// ===================================================
+
+	@Test
+	public void driverCreateAndEditOfferTest() {
+
+		final Object testingData[][] = {
+			// Alguien sin registrar/logueado -> false
+			{
+				null, IllegalArgumentException.class
+			},
+			// Un caretaker -> true
+			{
+				"caretaker1", null
+			},
+			// Una guarderia -> false
+			{
+				"kindergarten1", IllegalArgumentException.class
+			},
+			// Un cliente -> false
+			{
+				"customer1", IllegalArgumentException.class
+			}
+
+		};
+		for (int i = 0; i < testingData.length; i++)
+			this.createAndEditOfferTest((String) testingData[i][0], (Class<?>) testingData[i][1]);
+	}
+
+	@Test
+	public void driverDeleteOfferTest() {
+
+		final Object testingData[][] = {
+			// Alguien sin registrar/logueado -> false
+			{
+				null, 15, IllegalArgumentException.class
+			},
+			// Un caretaker a una offer con applies -> false
+			{
+				"caretaker1", 15, IllegalArgumentException.class
+			},
+			// Un caretaker a una offer sin applies pero que no es suya-> false
+			{
+				"caretaker1", 17, IllegalArgumentException.class
+			},
+			// Un caretaker a una offer sin applies -> true
+			{
+				"caretaker2", 17, null
+			},
+
+		};
+		for (int i = 0; i < testingData.length; i++)
+			this.deleteOfferTest((String) testingData[i][0], (int) testingData[i][1], (Class<?>) testingData[i][2]);
+	}
+}

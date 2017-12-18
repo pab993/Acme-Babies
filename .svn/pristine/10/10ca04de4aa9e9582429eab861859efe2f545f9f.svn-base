@@ -1,0 +1,66 @@
+
+package domain;
+
+import java.util.Collection;
+
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.validation.Valid;
+
+@Entity
+@Access(AccessType.PROPERTY)
+public class Customer extends Actor {
+
+	private CreditCard	creditCard;
+
+
+	@Valid
+	public CreditCard getCreditCard() {
+		return this.creditCard;
+	}
+
+	public void setCreditCard(final CreditCard creditCard) {
+		this.creditCard = creditCard;
+	}
+
+
+	//Relationships
+	// =======================================================
+
+	private Collection<Comment>		writeComments;
+	private Collection<Apply>		applies;
+	private Collection<Inscription>	inscriptions;
+
+
+	@Valid
+	@OneToMany(mappedBy = "customer")
+	public Collection<Comment> getWriteComments() {
+		return this.writeComments;
+	}
+
+	public void setWriteComments(final Collection<Comment> writeComments) {
+		this.writeComments = writeComments;
+	}
+
+	@Valid
+	@OneToMany(mappedBy = "customer")
+	public Collection<Apply> getApplies() {
+		return this.applies;
+	}
+
+	public void setApplies(final Collection<Apply> applies) {
+		this.applies = applies;
+	}
+
+	@Valid
+	@OneToMany(mappedBy = "customer")
+	public Collection<Inscription> getInscriptions() {
+		return this.inscriptions;
+	}
+
+	public void setInscriptions(final Collection<Inscription> inscriptions) {
+		this.inscriptions = inscriptions;
+	}
+}
